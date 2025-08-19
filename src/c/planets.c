@@ -1,4 +1,7 @@
 #include <pebble.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string.h>
 #include "astrocalc.h"
 #include "my_math.h"
 #include "colordefs.h"
@@ -28,14 +31,19 @@ static void draw_planet(GContext *ctx, GPoint *point, uint32_t resource_id, GCol
   
   #ifdef PBL_COLOR
   GColor *current_palette = gbitmap_get_palette(planet_bitmap);
-  for(int i = 0; i < 16; i++){
-		if ((GColorWhite.argb & 0x3F)==(current_palette[i].argb & 0x3F)){
-
-			current_palette[i].argb = (current_palette[i].argb & 0xC0)| (color.argb & 0x3F);
-			
-		}
-
-	}
+  if (current_palette) {
+    GColor *palette_copy = malloc(sizeof(GColor) * 16);
+    if (palette_copy) {
+      memcpy(palette_copy, current_palette, sizeof(GColor) * 16);
+      for (int i = 0; i < 16; i++) {
+        if ((GColorWhite.argb & 0x3F) == (palette_copy[i].argb & 0x3F)) {
+          palette_copy[i].argb = (palette_copy[i].argb & 0xC0) | (color.argb & 0x3F);
+        }
+      }
+      // Assign an owned copy so this planet's tint does not affect other bitmaps
+      gbitmap_set_palette(planet_bitmap, palette_copy, true);
+    }
+  }
   #endif
   graphics_context_set_fill_color(ctx, color);
   graphics_fill_circle(ctx, GPoint(x, y), 5);

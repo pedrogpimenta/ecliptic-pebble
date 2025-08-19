@@ -14,6 +14,18 @@
         "resources": {
             "media": [
                 {
+                    "file": "fonts/pixelout.ttf",
+                    "name": "FONT_PIXEL_OUT_48",
+                    "type": "font",
+                    "size": 48,
+                    "characterRegex": "[0-9: ]"
+                },
+                {
+                    "file": "images/frame.png",
+                    "name": "FRAME",
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/moon.png",
                     "name": "MOON",
                     "type": "bitmap"

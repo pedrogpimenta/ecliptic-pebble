@@ -7,12 +7,18 @@
 //#include "settings.h"
   
   
+// InverterLayer was removed in SDK 3. Only enable on older SDKs.
+#if defined(PBL_BW) && !defined(PBL_SDK_3)
+#define USE_INVERTER
+#endif
   
 static Window *s_main_window;
-#ifdef PBL_BW
+#ifdef USE_INVERTER
 static InverterLayer* inverter_layer;
 #endif
 static Layer* ecliptic_layer;
+static BitmapLayer *s_frame_layer;
+static GBitmap *s_frame_bitmap;
 
 
 
@@ -29,7 +35,7 @@ static void tuple_changed_callback(const uint32_t key, const Tuple* tuple_new, c
         //  update value
         screen = value;
         //  relocate inverter layer
-        #ifdef PBL_BW
+        #ifdef USE_INVERTER
         GRect rect = layer_get_frame(inverter_layer_get_layer(inverter_layer));
         rect.origin.x = (screen == screen_black) ? 144 : 0;
         layer_set_frame(inverter_layer_get_layer(inverter_layer), rect);
@@ -114,8 +120,10 @@ static void main_window_load(Window *window) {
   time_layer_create(window);
   date_layer_create(window);
   sb_layer_create(window);
+#ifdef USE_INVERTER
   inverter_layer = inverter_layer_create(GRect((screen == screen_black) ? 144 : 0, 0, 144, 168));
   layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(inverter_layer));
+#endif
 #endif
   planets_layer_create(window);
 #ifdef PBL_COLOR  
@@ -138,18 +146,30 @@ static void main_window_load(Window *window) {
   battery_handler(battery_state_service_peek());
   connection_handler(bluetooth_connection_service_peek());  
   
-  
+  // Create and add overlay frame as the topmost layer
+  s_frame_bitmap = gbitmap_create_with_resource(RESOURCE_ID_FRAME);
+  s_frame_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
+  bitmap_layer_set_background_color(s_frame_layer, GColorClear);
+  bitmap_layer_set_compositing_mode(s_frame_layer, GCompOpSet);
+  bitmap_layer_set_bitmap(s_frame_layer, s_frame_bitmap);
+  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_frame_layer));
 }
 
 static void main_window_unload(Window *window) {
-  #ifdef PBL_BW
+  #ifdef USE_INVERTER
   inverter_layer_destroy(inverter_layer);
   #endif
   text_layer_destroy(s_time_layer);
+  if (s_time_font) {
+    fonts_unload_custom_font(s_time_font);
+  }
   layer_destroy(s_sb_layer);
+  text_layer_destroy(s_day_layer);
   text_layer_destroy(s_date_layer);
   layer_destroy(s_planets_layer);
   layer_destroy(ecliptic_layer);
+  bitmap_layer_destroy(s_frame_layer);
+  gbitmap_destroy(s_frame_bitmap);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
