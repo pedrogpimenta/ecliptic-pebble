@@ -31,10 +31,10 @@ static void date_layer_create(Window *window) {
 }
 
 static void time_layer_create(Window *window) {
-  s_time_layer = text_layer_create(GRect(0, 52, 144, 48));
+  s_time_layer = text_layer_create(GRect(0, 56, 144, 48));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, TIME_COLOR);
-  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PIXEL_OUT_48));
+  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PIXEL_OUT_42));
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));

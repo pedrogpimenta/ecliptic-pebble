@@ -21,6 +21,13 @@
                     "characterRegex": "[0-9: ]"
                 },
                 {
+                    "file": "fonts/pixelout.ttf",
+                    "name": "FONT_PIXEL_OUT_42",
+                    "type": "font",
+                    "size": 42,
+                    "characterRegex": "[0-9: ]"
+                },
+                {
                     "file": "images/frame.png",
                     "name": "FRAME",
                     "type": "bitmap"
